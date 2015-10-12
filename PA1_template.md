@@ -1,12 +1,6 @@
----
-title: "PA1_template"
-author: "Natxo Reguera"
-date: "12 de octubre de 2015"
-output: 
-  html_document: 
-    fig_caption: yes
-    keep_md: yes
----
+# PA1_template
+Natxo Reguera  
+12 de octubre de 2015  
 
 # Introduction
 
@@ -33,17 +27,47 @@ The dataset is stored in a comma-separated-value (CSV) file and there are a tota
 
 First we set the working directory
 
-```{r echo = FALSE}
-setwd("D:/Docs/Estudios/Data Scientist/5. Reproducible Research/Project Assignment 1")
-```
+
 
 Loading the libraries
 
-```{r}
+
+```r
 library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+## 
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+## 
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 library(reshape2)
 library(lattice)
 library(plyr)
+```
+
+```
+## -------------------------------------------------------------------------
+## You have loaded plyr after dplyr - this is likely to cause problems.
+## If you need functions from both plyr and dplyr, please load plyr first, then dplyr:
+## library(plyr); library(dplyr)
+## -------------------------------------------------------------------------
+## 
+## Attaching package: 'plyr'
+## 
+## The following objects are masked from 'package:dplyr':
+## 
+##     arrange, count, desc, failwith, id, mutate, rename, summarise,
+##     summarize
 ```
 
 # 1. Reading and transforming the data for analysis. 
@@ -51,7 +75,8 @@ As the file was compressed in ZIP, for  this exercise it has been ommitted the u
 
 The date field it has been transformed and it has been created a dataset without the NAs
 
-```{r}
+
+```r
 act <- read.csv("activity.csv")
 act$date <- as.Date(act$date, format = "%Y-%m-%d")
 nona <- act[complete.cases(act$steps),]
@@ -60,61 +85,112 @@ nona <- act[complete.cases(act$steps),]
 # 2. What is mean total number of steps taken per day? 
 Histogram of it and mean / median
 
-```{r}
+
+```r
 stepsXday <- tapply(nona$steps, nona$date, sum)
 hist(stepsXday, breaks = 20)
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+
+```r
 mean(stepsXday)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(stepsXday)
+```
+
+```
+## [1] 10765
 ```
 
 # 3. What is the average daily activity pattern? 
 
 Plot the pattern
 
-```{r}
+
+```r
 stepsXinterval <- tapply(nona$steps, nona$interval, mean)
 stepsXintervalMelt <- melt(stepsXinterval)
 names(stepsXintervalMelt) <- c("interval", "avg")
 plot(stepsXintervalMelt, type = "l")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
+
 Calculate the 5 minute interval with the maximum number of steps
 
-```{r}
+
+```r
 stepsXintervalMelt[stepsXintervalMelt$avg == max(stepsXintervalMelt$avg),]
+```
+
+```
+##     interval      avg
+## 104      835 206.1698
 ```
 
 # 4. Imputing missing values
 Number of missing values (steps)
 
-```{r}
+
+```r
 nrow(act[complete.cases(act$steps) == FALSE,])
+```
+
+```
+## [1] 2304
+```
+
+```r
 actData <- act
 actData$steps[is.na(actData$steps)] <- mean(actData$steps, na.rm = TRUE)
 ```
 
 Histogram of the total number of steps per day
 
-```{r}
+
+```r
 stepsXday <- tapply(actData$steps, actData$date, sum)
 stepsXdayMelted <- melt(stepsXday)
 names(stepsXdayMelted) = c("date","sumSteps")
 hist(stepsXdayMelted$sumSteps, breaks = 20)
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png) 
 
 Calculate the mean and median
 
-```{r}
+
+```r
 mean(stepsXdayMelted$sumSteps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(stepsXdayMelted$sumSteps)
+```
+
+```
+## [1] 10766.19
 ```
 # 5. Are there differences in activity patterns between weekdays and weekends?
 
-```{r}
+
+```r
 actData$weekday <- weekdays(actData$date)
-actData$dayType[(actData$weekday == "sábado" | actData$weekday == "domingo")] <- "weekend"
-actData$dayType[!(actData$weekday == "sábado" | actData$weekday == "domingo")] <- "weekday"
+actData$dayType[(actData$weekday == "sÃ¡bado" | actData$weekday == "domingo")] <- "weekend"
+actData$dayType[!(actData$weekday == "sÃ¡bado" | actData$weekday == "domingo")] <- "weekday"
 stepWeek <- ddply(actData, c("interval", "dayType"), function(x) apply (x[1], 2, mean))
 xyplot(steps ~ interval | dayType, data = stepWeek, type ="l", layout = c(1,2))
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-10-1.png) 
